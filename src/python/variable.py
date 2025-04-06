@@ -131,7 +131,7 @@ if __name__ == "__main__":
             if idx % 20 == 0:
                 print(f"Loss variable: {loss}")
             
-            # bp
+            # GD
             w1.value = w1.value - lr * w1.grad
             w2.value = w2.value - lr * w2.grad
             b.value = b.value - lr * b.grad

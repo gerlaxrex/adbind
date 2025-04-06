@@ -95,10 +95,10 @@ std::shared_ptr<Variable> operator/(std::shared_ptr<Variable> var1, std::shared_
 
 void Variable::backward(double adjoint) {
     this->grad += adjoint;
-    std::cout << "Computing gradient for node of value " << this->value << " and grad " << this->grad << "(" << this << ")" << std::endl;
+    // std::cout << "Computing gradient for node of value " << this->value << " and grad " << this->grad << "(" << this << ")" << std::endl;
     for (auto& dep : this->deps) {
         auto currentDep = dep.dependentVariable;
-        std::cout << "Going to dep with value " << currentDep->getValue() << "(" << &currentDep << ")" << std::endl;
+        // std::cout << "Going to dep with value " << currentDep->getValue() << "(" << &currentDep << ")" << std::endl;
         currentDep->backward(dep.adjoint * adjoint);
     }
 }
