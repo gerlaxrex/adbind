@@ -10,14 +10,14 @@ std::shared_ptr<Variable> function(float x, float y,
                                    std::shared_ptr<Variable> w1, 
                                    std::shared_ptr<Variable> w2, 
                                    std::shared_ptr<Variable> b) {
-    auto term1 = w1 * std::make_shared<Variable>(x);
-    auto term2 = w2 * std::make_shared<Variable>(y);
-    return b + term1 + term2;
+    auto term1 = w1 * x;
+    auto term2 = w2 * y;
+    return relu(b + term1 + term2);
 }
 
 // The real process we're trying to approximate
 double real_process(float x, float y) {
-    return 1.0 + 2.5 * x - 0.32 * y;
+    return 1.0 + 2.5 * x - 0.32 * y + std::cos(x);
 }
 
 int main() {
@@ -36,7 +36,7 @@ int main() {
     auto w2 = std::make_shared<Variable>(0.3);
     auto b = std::make_shared<Variable>(0.0);
     
-    const int epochs = 2;
+    const int epochs = 10;
     const double lr = 0.1;
     
     for (int epoch = 0; epoch < epochs; epoch++) {
@@ -44,11 +44,11 @@ int main() {
         
         for (int idx = 0; idx < inputs.size(); idx++) {
             auto [x, y] = inputs[idx];
-            auto y_hat = function(x, y, w1, w2, b);
-            double y_real = real_process(x, y);
-            auto y_real_var = std::make_shared<Variable>(y_real);
+            auto yHat = function(x, y, w1, w2, b);
+            double yReal = real_process(x, y);
+            auto yRealVar = std::make_shared<Variable>(yReal);
             
-            auto diff = y_hat - y_real_var;
+            auto diff = yHat - yRealVar;
             auto loss = diff * diff;
             loss->backward();
 
@@ -62,6 +62,7 @@ int main() {
             b->setValue(b->getValue() - lr * b->getGrad());
             
             // Zero grad
+            loss->reset();
             w1->reset();
             w2->reset();
             b->reset();
@@ -79,10 +80,10 @@ int main() {
     
     for (int i = 0; i < 5; i++) {
         auto [x, y] = inputs[i];
-        auto y_hat = function(x, y, w1, w2, b);
-        double y_real = real_process(x, y);
+        auto yHat = function(x, y, w1, w2, b);
+        double yReal = real_process(x, y);
         
-        std::cout << std::setw(15) << y_hat->getValue() << std::setw(15) << y_real << std::endl;
+        std::cout << std::setw(15) << yHat->getValue() << std::setw(15) << yReal << std::endl;
     }
     
     return 0;

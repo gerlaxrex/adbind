@@ -1,5 +1,6 @@
 #include "Variable.hpp"
 #include<iostream>
+#include<cmath>
 
 Variable::Variable(double value) : value(value) {}
 
@@ -24,14 +25,6 @@ void Variable::addDependency(std::shared_ptr<Variable> var, double adjoint) {
 }
 
 // Sum operator overloadings
-std::shared_ptr<Variable> Variable::operator+(std::shared_ptr<Variable> other) {
-    auto res = std::make_shared<Variable>(this->value + other->value);
-    res->addDependency(shared_from_this(), 1.0);
-    res->addDependency(other, 1.0);
-    return res;
-}
-
-
 std::shared_ptr<Variable> operator+(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2) {
     auto res = std::make_shared<Variable>(var1->getValue() + var2->getValue());
     res->addDependency(var1, 1.0);
@@ -39,15 +32,17 @@ std::shared_ptr<Variable> operator+(std::shared_ptr<Variable> var1, std::shared_
     return res;
 }
 
-// Difference operator overloadings
-std::shared_ptr<Variable> Variable::operator-(std::shared_ptr<Variable> other) {
-    auto res = std::make_shared<Variable>(this->value - other->value);
-    res->addDependency(shared_from_this(), 1.0);
-    res->addDependency(other, -1.0);
-    return res;
+std::shared_ptr<Variable> operator+(double scalar, std::shared_ptr<Variable> var) {
+    auto scalar_var = std::make_shared<Variable>(scalar);
+    return operator+(scalar_var, var);
 }
 
+std::shared_ptr<Variable> operator+(std::shared_ptr<Variable> var, double scalar) {
+    auto scalar_var = std::make_shared<Variable>(scalar);
+    return operator+(var, scalar_var);
+}
 
+// Difference operator overloadings
 std::shared_ptr<Variable> operator-(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2) {
     auto res = std::make_shared<Variable>(var1->getValue() - var2->getValue());
     res->addDependency(var1, 1.0);
@@ -55,15 +50,17 @@ std::shared_ptr<Variable> operator-(std::shared_ptr<Variable> var1, std::shared_
     return res;
 }
 
-// Multiply operator overloadings
-std::shared_ptr<Variable> Variable::operator*(std::shared_ptr<Variable> other) {
-    auto res = std::make_shared<Variable>(this->value * other->value);
-    res->addDependency(shared_from_this(), other->value);
-    res->addDependency(other, this->value);
-    return res;
+std::shared_ptr<Variable> operator-(double scalar, std::shared_ptr<Variable> var) {
+    auto scalar_var = std::make_shared<Variable>(scalar);
+    return operator-(scalar_var, var);
 }
 
+std::shared_ptr<Variable> operator-(std::shared_ptr<Variable> var, double scalar) {
+    auto scalar_var = std::make_shared<Variable>(scalar);
+    return operator-(var, scalar_var);
+}
 
+// Multiply operator overloadings
 std::shared_ptr<Variable> operator*(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2) {
     auto res = std::make_shared<Variable>(var1->getValue() * var2->getValue());
     res->addDependency(var1, var2->getValue());
@@ -71,18 +68,17 @@ std::shared_ptr<Variable> operator*(std::shared_ptr<Variable> var1, std::shared_
     return res;
 }
 
-// Divide operator overloadings
-std::shared_ptr<Variable> Variable::operator/(std::shared_ptr<Variable> other) {
-    if (other->value == 0.0) {
-        throw std::runtime_error("Division by zero!");
-    }
-    auto res = std::make_shared<Variable>(this->value / other->value);
-    res->addDependency(shared_from_this(), 1.0 / other->value);
-    res->addDependency(other, -this->value / (pow(other->value, 2.0)));
-    return res;
+std::shared_ptr<Variable> operator*(double scalar, std::shared_ptr<Variable> var) {
+    auto scalar_var = std::make_shared<Variable>(scalar);
+    return operator*(scalar_var, var);
 }
 
+std::shared_ptr<Variable> operator*(std::shared_ptr<Variable> var, double scalar) {
+    auto scalar_var = std::make_shared<Variable>(scalar);
+    return operator*(var, scalar_var);
+}
 
+// Divide operator overloadings
 std::shared_ptr<Variable> operator/(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2) {
     if (var2->getValue() == 0.0) {
         throw std::runtime_error("Division by zero!");
@@ -93,6 +89,19 @@ std::shared_ptr<Variable> operator/(std::shared_ptr<Variable> var1, std::shared_
     return res;
 }
 
+std::shared_ptr<Variable> operator/(double scalar, std::shared_ptr<Variable> var) {
+    auto scalar_var = std::make_shared<Variable>(scalar);
+    return operator/(scalar_var, var);
+}
+
+std::shared_ptr<Variable> operator/(std::shared_ptr<Variable> var, double scalar) {
+    if (scalar == 0.0) {
+        throw std::runtime_error("Division by zero!");
+    }
+    auto scalar_var = std::make_shared<Variable>(scalar);
+    return operator/(var, scalar_var);
+}
+// Backward
 void Variable::backward(double adjoint) {
     this->grad += adjoint;
     // std::cout << "Computing gradient for node of value " << this->value << " and grad " << this->grad << "(" << this << ")" << std::endl;
@@ -107,3 +116,45 @@ std::ostream& operator<<(std::ostream& os, std::shared_ptr<Variable> var){
     os << "Variable(value=" << var->getValue() << ", grad=" << var->getGrad() << ")";
     return os;
 }
+
+std::shared_ptr<Variable> log(std::shared_ptr<Variable> input){
+    if(input->getValue() <= 0){
+        throw std::runtime_error("Logarithm of non-positive value is undefined");
+    }
+    auto logVar = std::make_shared<Variable>(std::log(input->getValue()));
+    logVar->addDependency(input, 1.0 / input->getValue());
+    return logVar;
+}
+
+
+std::shared_ptr<Variable> pow(std::shared_ptr<Variable> base, std::shared_ptr<Variable> exponent){
+    auto expVar = std::make_shared<Variable>(std::pow(base->getValue(), exponent->getValue()));
+    expVar->addDependency(base,  exponent->getValue() * std::pow(base->getValue(), exponent->getValue()-1));
+    expVar->addDependency(exponent,  std::pow(base->getValue(), exponent->getValue()-1) * std::log(base->getValue()));
+    return expVar;
+}
+
+std::shared_ptr<Variable> exp(std::shared_ptr<Variable> input){
+    auto expVar = std::make_shared<Variable>(std::exp(input->getValue()));
+    expVar->addDependency(input, expVar->getValue());
+    return expVar;
+}
+
+std::shared_ptr<Variable> sin(std::shared_ptr<Variable> input){
+    auto sinVar = std::make_shared<Variable>(std::sin(input->getValue()));
+    sinVar->addDependency(input, std::cos(input->getValue()));
+    return sinVar;
+}
+
+std::shared_ptr<Variable> cos(std::shared_ptr<Variable> input){
+    auto cosVar = std::make_shared<Variable>(std::cos(input->getValue()));
+    cosVar->addDependency(input, -std::sin(input->getValue()));
+    return cosVar;
+}
+
+std::shared_ptr<Variable> relu(std::shared_ptr<Variable> input){
+    auto reluVar = std::make_shared<Variable>(std::max(0.0, input->getValue()));
+    reluVar->addDependency(input, input->getValue()>0? 1.0 : 0.0);
+    return reluVar;
+}
+

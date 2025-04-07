@@ -27,36 +27,32 @@ public:
     void reset();
     // Decontsructor
     ~Variable() = default;
-    // Operators and functions
-    std::shared_ptr<Variable> operator+(std::shared_ptr<Variable> other);
-    std::shared_ptr<Variable> operator*(std::shared_ptr<Variable> other);
-    std::shared_ptr<Variable> operator-(std::shared_ptr<Variable> other);
-    std::shared_ptr<Variable> operator/(std::shared_ptr<Variable> other);
-    // with only doubles to emulate python 
-    // Variable operator+(const double other) const;
-    // Variable operator*(const double other) const;
-    // Variable operator-(const double other) const;
-    // Variable operator/(const double other) const;
     void backward(double adjoint=1.0);
 };
 
+// Operators for sum, sub, mult, div also with scalars
 std::shared_ptr<Variable> operator+(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2);
-std::shared_ptr<Variable> operator*(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2);
 std::shared_ptr<Variable> operator-(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2);
+std::shared_ptr<Variable> operator*(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2);
 std::shared_ptr<Variable> operator/(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2);
 
+std::shared_ptr<Variable> operator+(double var1, std::shared_ptr<Variable> var2);
+std::shared_ptr<Variable> operator-(double var1, std::shared_ptr<Variable> var2);
+std::shared_ptr<Variable> operator*(double var1, std::shared_ptr<Variable> var2);
+std::shared_ptr<Variable> operator/(double var1, std::shared_ptr<Variable> var2);
+
+std::shared_ptr<Variable> operator+(std::shared_ptr<Variable> var1, double var2);
+std::shared_ptr<Variable> operator-(std::shared_ptr<Variable> var1, double var2);
+std::shared_ptr<Variable> operator*(std::shared_ptr<Variable> var1, double var2);
+std::shared_ptr<Variable> operator/(std::shared_ptr<Variable> var1, double var2);
+
 std::ostream& operator<<(std::ostream& os, std::shared_ptr<Variable> var);
-// Variable log(const Variable& other);
-// Variable pow(const Variable& other);
-// Variable sin(const Variable& other);
-// Variable cos(const Variable& other);
-// Variable relu(const Variable& other);
-// Variable log(const double other) ;
-// Variable pow(const double other) ;
-// Variable sin(const double other) ;
-// Variable cos(const double other) ;
-// Variable relu(const double other) ;
-
-
+// Custom functions
+std::shared_ptr<Variable> log(std::shared_ptr<Variable> input);
+std::shared_ptr<Variable> pow(std::shared_ptr<Variable> base, std::shared_ptr<Variable> exponent);
+std::shared_ptr<Variable> exp(std::shared_ptr<Variable> input);
+std::shared_ptr<Variable> sin(std::shared_ptr<Variable> input);
+std::shared_ptr<Variable> cos(std::shared_ptr<Variable> input);
+std::shared_ptr<Variable> relu(std::shared_ptr<Variable> input);
 
 #endif
