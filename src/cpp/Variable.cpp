@@ -60,6 +60,13 @@ std::shared_ptr<Variable> operator-(std::shared_ptr<Variable> var, double scalar
     return operator-(var, scalar_var);
 }
 
+// Single minus operator (negative unary)
+std::shared_ptr<Variable> operator-(std::shared_ptr<Variable> var1){
+    auto negativeVar = std::make_shared<Variable>(var1->getValue());
+    negativeVar->addDependency(var1, -1.0);
+    return negativeVar;
+}
+
 // Multiply operator overloadings
 std::shared_ptr<Variable> operator*(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2) {
     auto res = std::make_shared<Variable>(var1->getValue() * var2->getValue());

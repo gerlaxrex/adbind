@@ -33,6 +33,7 @@ public:
 // Operators for sum, sub, mult, div also with scalars
 std::shared_ptr<Variable> operator+(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2);
 std::shared_ptr<Variable> operator-(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2);
+std::shared_ptr<Variable> operator-(std::shared_ptr<Variable> var1);
 std::shared_ptr<Variable> operator*(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2);
 std::shared_ptr<Variable> operator/(std::shared_ptr<Variable> var1, std::shared_ptr<Variable> var2);
 
