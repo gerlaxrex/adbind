@@ -143,6 +143,12 @@ namespace adbind {
         return expVar;
     }
 
+    std::shared_ptr<Variable> pow(std::shared_ptr<Variable> base, double exponent){
+        auto expVar = std::make_shared<Variable>(std::pow(base->getValue(), exponent));
+        expVar->addDependency(base,  exponent * std::pow(base->getValue(), exponent-1));
+        return expVar;
+    }
+
     std::shared_ptr<Variable> exp(std::shared_ptr<Variable> input){
         auto expVar = std::make_shared<Variable>(std::exp(input->getValue()));
         expVar->addDependency(input, expVar->getValue());

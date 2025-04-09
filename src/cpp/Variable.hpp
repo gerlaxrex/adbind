@@ -52,6 +52,7 @@ namespace adbind {
     //Custom functions
     std::shared_ptr<Variable> log(std::shared_ptr<Variable> input);
     std::shared_ptr<Variable> pow(std::shared_ptr<Variable> base, std::shared_ptr<Variable> exponent);
+    std::shared_ptr<Variable> pow(std::shared_ptr<Variable> base, double exponent);
     std::shared_ptr<Variable> exp(std::shared_ptr<Variable> input);
     std::shared_ptr<Variable> sin(std::shared_ptr<Variable> input);
     std::shared_ptr<Variable> cos(std::shared_ptr<Variable> input);
