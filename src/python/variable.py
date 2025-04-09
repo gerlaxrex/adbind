@@ -1,5 +1,6 @@
 import math
 import random
+import time
 
 class Variable:
     def __init__(self, value, deps=None):
@@ -119,6 +120,7 @@ if __name__ == "__main__":
     lr = 0.1
 
     # training with sgd
+    st = time.perf_counter()
     for epoch in range(epochs):
         print(f"#### Epoch {epoch}")
         for idx, (x, y) in enumerate(inputs):
@@ -139,7 +141,8 @@ if __name__ == "__main__":
             w1.reset()
             w2.reset()
             b.reset()
-
+    
+    print(f"Finished in {time.perf_counter() - st}")
     y_hats = [function(x,y,w1,w2,b).value for x,y in inputs]
     y_reals = [real_process(x,y) for x,y in inputs]
 
