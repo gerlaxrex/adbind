@@ -1,0 +1,11 @@
+[project]
+name = "adbind"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pip>=25.0.1",
+    "pybind11[global]>=2.13.6",
+    "setuptools>=78.1.0",
+]

@@ -5,6 +5,8 @@
 #include <cmath>
 #include <iomanip>
 
+using namespace adbind;
+
 // Linear function with weights
 std::shared_ptr<Variable> function(float x, float y, 
                                    std::shared_ptr<Variable> w1, 
