@@ -116,7 +116,7 @@ if __name__ == "__main__":
     w1 = Variable(0.2)
     w2 = Variable(0.3)
     b = Variable(0.0)
-    epochs = 2
+    epochs = 10
     lr = 0.1
 
     # training with sgd
@@ -146,9 +146,6 @@ if __name__ == "__main__":
     y_hats = [function(x,y,w1,w2,b).value for x,y in inputs]
     y_reals = [real_process(x,y) for x,y in inputs]
 
-    print(y_hats)
+    # print(y_hats)
 
-    print(y_reals)
-
-
-
+    # print(y_reals)
